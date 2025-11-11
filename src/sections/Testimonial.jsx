@@ -51,8 +51,3 @@ export default function Testimonial() {
     </section>
   );
 }
-
-// --- How to use ---
-// 1) Save as src/sections/Testimonial.jsx
-// 2) Ensure your global theme (index.css) defines the .card utility and fixed bg.
-// 3) Put an avatar at public/guest-ava.jpg (or import and swap the path).
