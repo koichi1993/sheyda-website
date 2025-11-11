@@ -43,15 +43,26 @@
 }
 
 @layer utilities {
+  /* Mobile-first: gradient OVER image, no 'fixed' (iOS-safe) */
   .section-fixed-bg {
     background-image:
-      url("/background.png"),
-      linear-gradient(180deg, rgba(7,9,12,0.65) 0%, rgba(11,16,32,0.65) 100%);
+      /* overlay FIRST so it sits on top of the photo */
+      linear-gradient(180deg, rgba(7,9,12,0.65) 0%, rgba(11,16,32,0.65) 100%),
+      url("/background.png");
     background-size: cover, cover;
     background-position: center, center;
-    background-attachment: fixed, fixed;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: scroll, scroll; /* critical for iOS */
+  }
+
+  /* Enable parallax-like 'fixed' only on larger screens */
+  @media (min-width: 768px) {
+    .section-fixed-bg {
+      background-attachment: fixed, fixed;
+    }
   }
 }
+
 
 @layer base {
   img {
