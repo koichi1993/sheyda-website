@@ -2,7 +2,9 @@
 
 import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
-// ScrollTrigger is not needed here anymore, hero is static on scroll
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -17,16 +19,42 @@ export default function Hero() {
     if (!sectionEl) return;
 
     const ctx = gsap.context(() => {
-      // Simple on-load fade for hero text
-      gsap.from([headingRef.current, subRef.current, buttonsRef.current], {
+      // 1) Text starts hidden
+      gsap.set([headingRef.current, subRef.current, buttonsRef.current], {
         opacity: 0,
         y: 30,
+      });
+
+      // 2) Fade text in once user starts to scroll a bit
+      gsap.to([headingRef.current, subRef.current, buttonsRef.current], {
+        opacity: 1,
+        y: 0,
         duration: 0.9,
         stagger: 0.12,
         ease: "power2.out",
+        scrollTrigger: {
+          trigger: sectionEl,
+          start: "top 80%", // as hero top approaches 80% of viewport
+          toggleActions: "play none none none",
+        },
       });
 
-      // Smoke blobs: continuous float (not tied to scroll)
+      // 3) Scroll-controlled zoom on the background (NO pin)
+      if (mediaRef.current) {
+        gsap.to(mediaRef.current, {
+          scale: 1.12,
+          y: -60,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionEl,
+            start: "top top",
+            end: "bottom top", // shorter range → you quickly get to next section
+            scrub: true,
+          },
+        });
+      }
+
+      // 4) Smoke blobs: continuous float
       smokeRefs.current.forEach((el, i) => {
         if (!el) return;
         gsap.to(el, {
