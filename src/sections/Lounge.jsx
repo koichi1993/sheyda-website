@@ -1,11 +1,8 @@
 // File: src/sections/Lounge.jsx
-// Lounge section: pinned text + scroll-driven image sequence (3 images)
+// Lounge section: static text + auto-rotating image slideshow (no scroll control)
 
 import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
   { label: "Total Capacity", value: "120 Guests" },
@@ -22,8 +19,7 @@ const features = [
   "Open until 4 AM weekends",
 ];
 
-// For now all 3 use the same placeholder.
-// Later, replace with /lounge-1.png, /lounge-2.png, /lounge-3.png, etc.
+// Replace with your real images later
 const loungeImages = [
   {
     src: "/lounge-placeholder.png",
@@ -44,67 +40,61 @@ const loungeImages = [
 
 export default function Lounge() {
   const sectionRef = useRef(null);
-  const imagesWrapperRef = useRef(null);
   const imageRefs = useRef([]);
 
   useLayoutEffect(() => {
     const sectionEl = sectionRef.current;
-    const wrapperEl = imagesWrapperRef.current;
-    if (!sectionEl || !wrapperEl) return;
+    if (!sectionEl) return;
 
     const ctx = gsap.context(() => {
-      // Set initial positions:
-      // first image visible, next ones off to the right
-      gsap.set(imageRefs.current, (el, i) => ({
-        xPercent: i === 0 ? 0 : 100,
-        autoAlpha: i === 0 ? 1 : 0,
-      }));
+      const slides = imageRefs.current.filter(Boolean);
+      if (!slides.length) return;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionEl,
-          start: "top top",
-          end: "bottom+=200% top", // enough scroll distance
-          scrub: true,
-          pin: true,               // pin the whole Lounge section
-        },
-      });
+      // Start: first slide visible, others hidden
+      gsap.set(slides, { autoAlpha: 0 });
+      gsap.set(slides[0], { autoAlpha: 1 });
 
-      // Transition 1: image 0 -> image 1
-      if (imageRefs.current[0] && imageRefs.current[1]) {
-        tl.to(
-          imageRefs.current[0],
-          {
-            xPercent: -100,
+      let current = 0;
+      const slideDuration = 3; // seconds each slide fully visible
+      const fadeDuration = 1;  // seconds for the crossfade
+      let delayedCallRef;
+
+      const showNext = () => {
+        const prev = slides[current];
+        const nextIndex = (current + 1) % slides.length;
+        const next = slides[nextIndex];
+
+        // Crossfade: next fades in WHILE prev fades out, so no full black gap
+        gsap.timeline()
+          .to(prev, {
             autoAlpha: 0,
+            duration: fadeDuration,
             ease: "power2.inOut",
-          },
-          0
-        ).fromTo(
-          imageRefs.current[1],
-          { xPercent: 100, autoAlpha: 0 },
-          { xPercent: 0, autoAlpha: 1, ease: "power2.inOut" },
-          0
-        );
-      }
+          })
+          .to(
+            next,
+            {
+              autoAlpha: 1,
+              duration: fadeDuration,
+              ease: "power2.inOut",
+            },
+            0 // start at the same time as prev fade-out
+          );
 
-      // Transition 2: image 1 -> image 2
-      if (imageRefs.current[1] && imageRefs.current[2]) {
-        tl.to(
-          imageRefs.current[1],
-          {
-            xPercent: -100,
-            autoAlpha: 0,
-            ease: "power2.inOut",
-          },
-          1 // happens in the second half of the scroll
-        ).fromTo(
-          imageRefs.current[2],
-          { xPercent: 100, autoAlpha: 0 },
-          { xPercent: 0, autoAlpha: 1, ease: "power2.inOut" },
-          1
-        );
-      }
+        current = nextIndex;
+
+        // Schedule the next change
+        delayedCallRef = gsap.delayedCall(slideDuration, showNext);
+      };
+
+      // Start the loop after the first visible period
+      delayedCallRef = gsap.delayedCall(slideDuration, showNext);
+
+      // Cleanup on unmount
+      return () => {
+        if (delayedCallRef) delayedCallRef.kill();
+        gsap.killTweensOf(slides);
+      };
     }, sectionRef);
 
     return () => ctx.revert();
@@ -118,7 +108,7 @@ export default function Lounge() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 md:grid-cols-2">
-          {/* Text column (stays visible while images change) */}
+          {/* Text column */}
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-accent)]">
               The Lounge
@@ -174,8 +164,8 @@ export default function Lounge() {
             </div>
           </div>
 
-          {/* Image column: scroll-driven sequence */}
-          <div className="relative" ref={imagesWrapperRef}>
+          {/* Image column: auto slideshow */}
+          <div className="relative">
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl">
               {loungeImages.map((img, i) => (
                 <div

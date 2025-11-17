@@ -19,13 +19,13 @@ export default function Hero() {
     if (!sectionEl) return;
 
     const ctx = gsap.context(() => {
-      // --- 1) Hero text is hidden at first ---
+      // 1) Text starts hidden
       gsap.set([headingRef.current, subRef.current, buttonsRef.current], {
         opacity: 0,
         y: 30,
       });
 
-      // --- 2) Fade text in ONLY when user starts scrolling ---
+      // 2) Fade text in once user starts to scroll a bit
       gsap.to([headingRef.current, subRef.current, buttonsRef.current], {
         opacity: 1,
         y: 0,
@@ -34,37 +34,30 @@ export default function Hero() {
         ease: "power2.out",
         scrollTrigger: {
           trigger: sectionEl,
-          // Hero is at the top already; this means:
-          // "wait until the hero's top is a bit ABOVE the viewport"
-          // → user has scrolled a little
-          start: "top -5%",
-          toggleActions: "play none none none", // play once, no reverse
+          start: "top 80%", // small scroll and they appear
+          toggleActions: "play none none none",
         },
       });
 
-      // --- 3) Scroll-driven "scene": hero is pinned, video zooms ---
+      // 3) Short pinned scene: hero stays while video zooms, but not too long
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionEl,
           start: "top top",
-          end: "bottom+=200% top", // long scroll distance
+          end: "bottom+=40% top", // MUCH shorter than 200%
           scrub: true,
-          pin: true, // keeps hero fixed while we animate
+          pin: true, // keeps hero fixed briefly
         },
       });
 
-      // Video / background: clear zoom + move
       tl.fromTo(
         mediaRef.current,
         { scale: 1, y: 0 },
-        { scale: 1.18, y: -120, ease: "none" },
+        { scale: 1.12, y: -60, ease: "none" },
         0
       );
 
-      // (We no longer animate heading/sub/buttons in this timeline,
-      //  so their fade-in is clean and not overridden.)
-
-      // --- 4) Smoke blobs: continuous float ---
+      // 4) Smoke blobs: continuous float
       smokeRefs.current.forEach((el, i) => {
         if (!el) return;
         gsap.to(el, {
@@ -83,7 +76,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="home" ref={sectionRef} className="relative h-[80vh]">
+    <section id="home" ref={sectionRef} className="relative h-screen">
       {/* Background media (video + fallback) */}
       <div ref={mediaRef} className="absolute inset-0 z-0">
         {/* Motion-friendly: show video */}
