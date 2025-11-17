@@ -1,34 +1,66 @@
 // File: src/sections/Menu.jsx
 // Left: compact 3-image collage (aligned heights, no gap)
-// Right: clean text menu list
+// Right: clean text menu list with subtle hover micro-animations (no GSAP)
 
 const items = [
-  { name: "Classic Double Apple", desc: "Traditional blend with a smooth anise finish.", price: "¥1,800" },
-  { name: "Mint Breeze",          desc: "Crisp menthol with a cool exhale.",               price: "¥1,900" },
-  { name: "Blueberry Mist",       desc: "Sweet blueberry with gentle floral notes.",       price: "¥2,000" },
-  { name: "Citrus Splash",        desc: "Lemon–orange blend, bright and zesty.",          price: "¥2,000" },
-  { name: "Tropical Sunset",      desc: "Pineapple, mango, and a hint of coconut.",       price: "¥2,200" },
-  { name: "Premium Custom Mix",   desc: "Choose up to 3 flavors — your perfect bowl.",    price: "¥2,500" },
+  {
+    name: "Classic Double Apple",
+    desc: "Traditional blend with a smooth anise finish.",
+    price: "¥1,800",
+  },
+  {
+    name: "Mint Breeze",
+    desc: "Crisp menthol with a cool exhale.",
+    price: "¥1,900",
+  },
+  {
+    name: "Blueberry Mist",
+    desc: "Sweet blueberry with gentle floral notes.",
+    price: "¥2,000",
+  },
+  {
+    name: "Citrus Splash",
+    desc: "Lemon–orange blend, bright and zesty.",
+    price: "¥2,000",
+  },
+  {
+    name: "Tropical Sunset",
+    desc: "Pineapple, mango, and a hint of coconut.",
+    price: "¥2,200",
+    featured: true, // <– highlight this one
+  },
+  {
+    name: "Premium Custom Mix",
+    desc: "Choose up to 3 flavors — your perfect bowl.",
+    price: "¥2,500",
+  },
 ];
 
 const leftImages = {
   top: { src: "/shisha-wide.png", alt: "Shisha wide" },
-  a:   { src: "/shisha-a.png",    alt: "Shisha A"    },
-  b:   { src: "/shisha-b.png",    alt: "Shisha B"    },
+  a: { src: "/shisha-a.png", alt: "Shisha A" },
+  b: { src: "/shisha-b.png", alt: "Shisha B" },
 };
 
 export default function Menu() {
   return (
-    <section id="menu" className="relative py-16 sm:py-20 section-fixed-bg">
+    <section
+      id="menu"
+      className="relative py-16 sm:py-20 section-fixed-bg"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
         {/* Header */}
         <div className="card px-4 py-4 sm:flex sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-accent)]">Shisha Menu</p>
-            <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">Our signature blends</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-accent)]">
+              Shisha Menu
+            </p>
+            <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">
+              Our signature blends
+            </h2>
             <p className="mt-2 max-w-2xl text-white/80">
-              Hand-selected tobaccos, packed to perfection. Ask our staff for nicotine levels and bowl recommendations.
+              Hand-selected tobaccos, packed to perfection. Ask our staff for
+              nicotine levels and bowl recommendations.
             </p>
           </div>
 
@@ -50,7 +82,7 @@ export default function Menu() {
                 src={leftImages.top.src}
                 alt={leftImages.top.alt}
                 loading="lazy"
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
               />
             </figure>
 
@@ -65,7 +97,7 @@ export default function Menu() {
                     src={img.src}
                     alt={img.alt}
                     loading="lazy"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.05]"
                   />
                 </figure>
               ))}
@@ -77,20 +109,33 @@ export default function Menu() {
             {items.map((it, i) => (
               <article
                 key={i}
-                className="card flex items-start justify-between gap-4 px-4 py-4 transition hover:bg-white/10"
+                className="group card flex items-start justify-between gap-4 px-4 py-4 transition-transform duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-[var(--color-accent)]/60"
               >
                 <div>
-                  <h3 className="text-base font-semibold text-white">{it.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-semibold text-white">
+                      {it.name}
+                    </h3>
+
+                    {it.featured && (
+                      <span className="rounded-full border border-[var(--color-accent)]/60 bg-[var(--color-accent)]/10 px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)] animate-pulse">
+                        Recommended
+                      </span>
+                    )}
+                  </div>
+
                   <p className="mt-0.5 text-sm text-white/75">{it.desc}</p>
                 </div>
-                <span className="shrink-0 rounded-md border border-[var(--color-accent)] bg-transparent px-2 py-1 text-sm font-semibold text-[var(--color-accent)]">
+
+                <span className="shrink-0 rounded-md border border-[var(--color-accent)] bg-transparent px-2 py-1 text-sm font-semibold text-[var(--color-accent)] transition-all duration-300 group-hover:bg-[var(--color-accent)] group-hover:text-black group-hover:shadow-[0_0_18px_rgba(1,241,241,0.5)]">
                   {it.price}
                 </span>
               </article>
             ))}
 
             <p className="text-sm text-white/60">
-              Prices include tax. Service charge may apply. Ask staff for allergens.
+              Prices include tax. Service charge may apply. Ask staff for
+              allergens.
             </p>
           </div>
         </div>
