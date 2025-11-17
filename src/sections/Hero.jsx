@@ -2,9 +2,7 @@
 
 import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+// ScrollTrigger is not needed here anymore, hero is static on scroll
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -19,45 +17,16 @@ export default function Hero() {
     if (!sectionEl) return;
 
     const ctx = gsap.context(() => {
-      // 1) Text starts hidden
-      gsap.set([headingRef.current, subRef.current, buttonsRef.current], {
+      // Simple on-load fade for hero text
+      gsap.from([headingRef.current, subRef.current, buttonsRef.current], {
         opacity: 0,
         y: 30,
-      });
-
-      // 2) Fade text in once user starts to scroll a bit
-      gsap.to([headingRef.current, subRef.current, buttonsRef.current], {
-        opacity: 1,
-        y: 0,
         duration: 0.9,
         stagger: 0.12,
         ease: "power2.out",
-        scrollTrigger: {
-          trigger: sectionEl,
-          start: "top 80%", // small scroll and they appear
-          toggleActions: "play none none none",
-        },
       });
 
-      // 3) Short pinned scene: hero stays while video zooms, but not too long
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionEl,
-          start: "top top",
-          end: "bottom+=40% top", // MUCH shorter than 200%
-          scrub: true,
-          pin: true, // keeps hero fixed briefly
-        },
-      });
-
-      tl.fromTo(
-        mediaRef.current,
-        { scale: 1, y: 0 },
-        { scale: 1.12, y: -60, ease: "none" },
-        0
-      );
-
-      // 4) Smoke blobs: continuous float
+      // Smoke blobs: continuous float (not tied to scroll)
       smokeRefs.current.forEach((el, i) => {
         if (!el) return;
         gsap.to(el, {
@@ -76,7 +45,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="home" ref={sectionRef} className="relative h-screen">
+    <section id="home" ref={sectionRef} className="relative h-[80vh]">
       {/* Background media (video + fallback) */}
       <div ref={mediaRef} className="absolute inset-0 z-0">
         {/* Motion-friendly: show video */}
